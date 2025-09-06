@@ -16,9 +16,16 @@ struct Player {
     kit_number: u8,
 }
 
+#[derive(Serialize)]
+struct DataWrap {
+    data: Vec<Value>,
+}
+
 pub fn process_csv(input: &str, output: &str, format: FileFormat) -> anyhow::Result<()> {
     let mut reader = Reader::from_path(input)?;
-    let mut ret = Vec::with_capacity(128);
+    let mut ret = DataWrap {
+        data: Vec::with_capacity(128),
+    };
     let headers = reader.headers()?.clone();
     for result in reader.records() {
         let record = result?;
@@ -30,7 +37,7 @@ pub fn process_csv(input: &str, output: &str, format: FileFormat) -> anyhow::Res
         // }
         // ret.push(serde_json::json!(player));
         let json_value = headers.iter().zip(record.iter()).collect::<Value>();
-        ret.push(json_value);
+        ret.data.push(json_value);
     }
 
     let content = match format {
