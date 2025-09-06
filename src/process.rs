@@ -1,6 +1,7 @@
+use crate::opts::FileFormat;
 use csv::Reader;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use serde_json::Value;
 use std::fs;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -15,21 +16,28 @@ struct Player {
     kit_number: u8,
 }
 
-pub fn process_csv(input: &str, output: &str) -> anyhow::Result<()> {
+pub fn process_csv(input: &str, output: &str, format: FileFormat) -> anyhow::Result<()> {
     let mut reader = Reader::from_path(input)?;
-    let mut players = Vec::with_capacity(128);
-    let header = reader.headers()?.clone();
-    for res in reader.records() {
-        let record = res?;
-        let mut player = HashMap::new();
-        for (i, value) in record.iter().enumerate() {
-            let name = &header[i];
-            let value = value.to_string();
-            player.insert(name, value);
-        }
-        players.push(serde_json::json!(player));
+    let mut ret = Vec::with_capacity(128);
+    let headers = reader.headers()?.clone();
+    for result in reader.records() {
+        let record = result?;
+        // let mut player = HashMap::new();
+        // for (i, value) in record.iter().enumerate() {
+        //     let name = &headers[i];
+        //     let value = value.to_string();
+        //     player.insert(name, value);
+        // }
+        // ret.push(serde_json::json!(player));
+        let json_value = headers.iter().zip(record.iter()).collect::<Value>();
+        ret.push(json_value);
     }
-    let json = serde_json::to_string_pretty(&players)?;
-    fs::write(output, json)?;
+
+    let content = match format {
+        FileFormat::Json => serde_json::to_string_pretty(&ret)?,
+        FileFormat::Yaml => serde_yaml::to_string(&ret)?,
+        FileFormat::Toml => toml::to_string(&ret)?,
+    };
+    fs::write(output, content)?;
     Ok(())
 }
