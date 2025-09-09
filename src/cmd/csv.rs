@@ -1,22 +1,6 @@
+use crate::cmd::verify_file;
 use clap::Parser;
-use std::fmt;
-use std::path::Path;
-use std::str::FromStr;
-
-#[derive(Debug, Parser)]
-#[command(name = "rctl", version, author, about, long_about = None)]
-pub struct Opts {
-    #[command(subcommand)]
-    pub cmd: SubCommand,
-}
-
-#[derive(Debug, Parser)]
-pub enum SubCommand {
-    #[command(name = "csv", about = "Convert CSV to other formats.")]
-    Csv(CsvOpts),
-    #[command(name = "genpass", about = "Generate a random password")]
-    GenPass(GenPassOpts),
-}
+use std::{fmt, str::FromStr};
 
 #[derive(Debug, Clone, Copy)]
 pub enum FileFormat {
@@ -37,28 +21,6 @@ pub struct CsvOpts {
     header: bool,
     #[arg(short, long, default_value_t = ',')]
     delimiter: char,
-}
-
-#[derive(Debug, Parser)]
-pub struct GenPassOpts {
-    #[arg(short, long, default_value_t = 16)]
-    pub length: u8,
-    #[arg(long, default_value_t = true)]
-    pub uppercase: bool,
-    #[arg(long, default_value_t = true)]
-    pub lowercase: bool,
-    #[arg(long, default_value_t = true)]
-    pub number: bool,
-    #[arg(long, default_value_t = true)]
-    pub symbol: bool,
-}
-
-fn verify_file(filepath: &str) -> Result<String, &'static str> {
-    if Path::new(filepath).exists() {
-        Ok(filepath.to_string())
-    } else {
-        Err("Input file does not exist")
-    }
 }
 
 fn parse_format(format: &str) -> Result<FileFormat, anyhow::Error> {

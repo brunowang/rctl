@@ -1,4 +1,4 @@
-use crate::opts::FileFormat;
+use crate::cmd::FileFormat;
 use csv::Reader;
 use serde::Serialize;
 use serde_json::Value;

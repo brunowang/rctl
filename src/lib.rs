@@ -1,5 +1,5 @@
-mod opts;
+mod cmd;
 mod process;
 
-pub use opts::{Opts, SubCommand};
+pub use cmd::{Opts, SubCommand};
 pub use process::*;
