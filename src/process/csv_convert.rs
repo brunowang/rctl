@@ -1,20 +1,8 @@
 use crate::opts::FileFormat;
 use csv::Reader;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use serde_json::Value;
 use std::fs;
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-struct Player {
-    name: String,
-    position: String,
-    #[serde(rename = "DOB")]
-    date_of_birth: String,
-    nationality: String,
-    #[serde(rename = "Kit Number")]
-    kit_number: u8,
-}
 
 #[derive(Serialize)]
 struct DataWrap {
@@ -29,13 +17,13 @@ pub fn process_csv(input: &str, output: &str, format: FileFormat) -> anyhow::Res
     let headers = reader.headers()?.clone();
     for result in reader.records() {
         let record = result?;
-        // let mut player = HashMap::new();
+        // let mut entity = HashMap::new();
         // for (i, value) in record.iter().enumerate() {
         //     let name = &headers[i];
         //     let value = value.to_string();
-        //     player.insert(name, value);
+        //     entity.insert(name, value);
         // }
-        // ret.push(serde_json::json!(player));
+        // ret.push(serde_json::json!(entity));
         let json_value = headers.iter().zip(record.iter()).collect::<Value>();
         ret.data.push(json_value);
     }
